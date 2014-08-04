@@ -1,48 +1,113 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>free d&d img sample</title>
+<title>free d&d img (sliding) sample</title>
 <script language="JavaScript">
 <!--
 x_offset = 50;
 y_offset = 50;
-imgName = "img1";
+imgName = "";
+var imgIns;
+area_height = 600;
+area_width = 800;
 
-function dragOn(name) {
+function dragStart(dImg, event) {
     flag = true;
-    imgName = name;
+    imgIns = dImg;
+    x_offset = event.clientX - dImg.left;
+    y_offset = event.clientY - dImg.top;
+    imgName = dImg.id;
     img = document.getElementById(imgName);
     img.style.opacity = "0.3";
 }
 
 function dropImg(event) {
     flag = false;
-    img = document.getElementById(imgName);
-    img.style.top = String(event.clientY - y_offset) + "px";
-    img.style.left = String(event.clientX - x_offset) + "px";
+    imgIns.place(event.clientX - x_offset, event.clientY - y_offset);
     event.preventDefault();
 }
 
 function dragEnd(event) {
     img = document.getElementById(imgName);
     img.style.opacity = "1.0";
+    imgName = "";
 }
 
 function dragOver(event) {
     event.preventDefault();
 }
 
+function moveImgs() {
+    if (imgName !== "img1") {
+        eval("i1").move();
+    }
+    if (imgName !== "img2") {
+        eval("i2").move();
+    }
+    if (imgName !== "img3") {
+        eval("i3").move();
+    }
+}
+
+function driftImage(name, id, src, top, left, mvX=1, mvY=1) {
+    this.id = id;
+    this.src = src;
+    this.top = top;
+    this.left = left;
+    this.mvX = mvX;
+    this.mvY = mvY;
+    this.instance_name = name;
+
+    this.place = function(left, top) {
+        this.top = top;
+        this.left = left;
+        img = document.getElementById(this.id);
+        img.style.top = this.top.toString() + "px";
+        img.style.left = this.left.toString() + "px";
+    };
+    this.move = function() {
+        this.top = this.top + this.mvY;
+        if (this.top < 0) {
+            this.top = 0;
+        }
+        if (this.top > area_height) {
+            this.top = area_height;
+        }
+        this.left = this.left + this.mvX;
+        if (this.left < 0) {
+            this.left = 0;
+        }
+        if (this.left > area_width) {
+            this.left = area_width;
+        }
+        img = document.getElementById(this.id);
+        img.style.top = this.top.toString() + "px";
+        img.style.left = this.left.toString() + "px";
+    };
+    this.render = function() {
+        document.write("<img id='" + this.id + "' src='" + this.src + "'");
+        document.write(" style='position:absolute; top:" + this.top.toString() + "px; left:" + this.left.toString() + "px;'");
+        document.write(" ondragstart='dragStart(eval(" + this.instance_name + "), event)' >");
+    };
+}
+
+function timerStart() {
+    setInterval("moveImgs()", 100);
+}
+
+document.write('<div style="width:' + area_width.toString() + 'px; height:' + area_height.toString() + 'px; background:#eee;" ondrop="dropImg(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" >');
+var i1 = new driftImage("i1", "img1", "img/header_koala.gif", 100, 100);
+i1.render();
+var i2 = new driftImage("i2", "img2", "img/koala_face.gif", 300, 200);
+i2.render();
+var i3 = new driftImage("i3", "img3", "img/user.png", 200, 600);
+i3.render();
+document.write("</div>");
+
 //-->
 </script>
 </head>
-<body bgcolor="#ffffff">
-<div style="width:800px; height:500px; background:#eee;" ondrop="dropImg(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" >
-
-<img id="img1" src="img/header_koala.gif" style="position:absolute; top:100px; left:100px;" ondragstart="dragOn('img1')">
-<img id="img2" src="img/koala_face.gif" style="position:absolute; top:300px; left:200px;" ondragstart="dragOn('img2')">
-<img id="img3" src="img/user.png" style="position:absolute; top:200px; left:600px;" ondragstart="dragOn('img3')">
-
-</div>
-
+<body bgcolor="#ffffff" onload="timerStart()">
+<button onclick="moveImgs()">move</button>
 </body>
 </html>
