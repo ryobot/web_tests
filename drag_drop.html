@@ -10,6 +10,11 @@ imgName = "";
 var imgIns;
 area_height = 600;
 area_width = 800;
+var timestamp = 0;
+
+var catch_time = 0;
+var catch_x = 0;
+var catch_y = 0;
 
 function dragStart(dImg, event) {
     flag = true;
@@ -19,10 +24,17 @@ function dragStart(dImg, event) {
     imgName = dImg.id;
     img = document.getElementById(imgName);
     img.style.opacity = "0.3";
+    catch_time = timestamp;
+    catch_x = event.clientX;
+    catch_y = event.clientY;
 }
 
 function dropImg(event) {
     flag = false;
+    duration = timestamp - catch_time + 1;
+    imgIns.mvX = (event.clientX - catch_x)/duration;
+    imgIns.mvY = (event.clientY - catch_y)/duration;
+    imgIns.rotV = 0;
     imgIns.place(event.clientX - x_offset, event.clientY - y_offset);
     event.preventDefault();
 }
@@ -40,16 +52,20 @@ function dragOver(event) {
 function moveImgs() {
     if (imgName !== "img1") {
         eval("i1").move();
+        eval("i1").rot();
     }
     if (imgName !== "img2") {
         eval("i2").move();
+        eval("i2").rot();
     }
     if (imgName !== "img3") {
         eval("i3").move();
+        eval("i3").rot();
     }
+    timestamp++;
 }
 
-function driftImage(name, id, src, top, left, mvX=1, mvY=1) {
+function driftImage(name, id, src, top, left, mvX=-3, mvY=1) {
     this.id = id;
     this.src = src;
     this.top = top;
@@ -57,6 +73,8 @@ function driftImage(name, id, src, top, left, mvX=1, mvY=1) {
     this.mvX = mvX;
     this.mvY = mvY;
     this.instance_name = name;
+    this.rotval = 0;
+    this.rotV = 0;
 
     this.place = function(left, top) {
         this.top = top;
@@ -65,20 +83,33 @@ function driftImage(name, id, src, top, left, mvX=1, mvY=1) {
         img.style.top = this.top.toString() + "px";
         img.style.left = this.left.toString() + "px";
     };
+    this.rot = function() {
+        this.rotval = this.rotval + this.rotV;
+        img = document.getElementById(this.id);
+        img.style.transform = "rotate(" + this.rotval.toString() + "deg)";
+    };
     this.move = function() {
         this.top = this.top + this.mvY;
         if (this.top < 0) {
             this.top = 0;
+            this.mvY *= -0.7;
+            this.rotV += this.mvX;
         }
         if (this.top > area_height) {
             this.top = area_height;
+            this.mvY *= -0.7;
+            this.rotV += this.mvX;
         }
         this.left = this.left + this.mvX;
         if (this.left < 0) {
             this.left = 0;
+            this.mvX *= -0.7;
+            this.rotV += this.mvY;
         }
         if (this.left > area_width) {
             this.left = area_width;
+            this.mvX *= -0.7;
+            this.rotV += this.mvY;
         }
         img = document.getElementById(this.id);
         img.style.top = this.top.toString() + "px";
@@ -92,7 +123,7 @@ function driftImage(name, id, src, top, left, mvX=1, mvY=1) {
 }
 
 function timerStart() {
-    setInterval("moveImgs()", 100);
+    setInterval("moveImgs()", 20);
 }
 
 document.write('<div style="width:' + area_width.toString() + 'px; height:' + area_height.toString() + 'px; background:#eee;" ondrop="dropImg(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" >');
