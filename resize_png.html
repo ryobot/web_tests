@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Resize PNG</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            function updateSrcImg() {
+                document.getElementById("src_img").src = document.getElementById("img_url").value;
+            }
+            function updateResizeImg() {
+                var resize_img = "resize_png.php?img_url="
+                        + document.getElementById("img_url").value  + "&resize_percent="
+                        + document.getElementById("resize_percent").value;
+                document.getElementById("resize_img").src = resize_img;
+                document.getElementById("resize_img2").src = resize_img;
+                document.getElementById("resize_img3").src = resize_img;
+            }
+        </script>
+    </head>
+    <body>
+        <div><input type="text" id="img_url" value="img/user.png"><button onclick="updateSrcImg()">update</button></div>
+        <div><img id="src_img" src="img/user.png"></div>
+        <div><input type="text" id="resize_percent" value="50"><button onclick="updateResizeImg()">update</button></div>
+        <div style="background: #fff; display: inline-block; padding: 5px;"><img id="resize_img" src="resize_png.php"></div>
+        <div style="background: #aaa; display: inline-block; padding: 5px;"><img id="resize_img2" src="resize_png.php"></div>
+        <div style="background: #888; display: inline-block; padding: 5px;"><img id="resize_img3" src="resize_png.php"></div>
+    </body>
+</html>
